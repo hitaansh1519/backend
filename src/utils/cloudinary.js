@@ -1,5 +1,6 @@
 import { v2 as cloudinary } from 'cloudinary';
 import fs from "fs"
+import { CLIENT_RENEG_LIMIT } from 'tls';
 
     // Configuration
     cloudinary.config({ 
@@ -16,7 +17,8 @@ import fs from "fs"
                 resource_type: "auto"
             })
             //file has been uploaded successfully
-            conosle.log("file uploaded successfully on cloudinary",response.url);
+            // console.log("file uploaded successfully on cloudinary",response.url);
+            fs.unlinkSync(localFilePath);
             return response;
         } catch (error) {
             fs.unlinkSync(localFilePath) //remove the locally saved temporary file as the upload operation got failed
