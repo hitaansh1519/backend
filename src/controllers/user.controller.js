@@ -314,7 +314,6 @@ const updateUserCoverImage = asyncHandler( async(req, res) => {
     .json(new ApiResponse(200, user, "Cover Image updated successfully"))
 })
 
-
 const getUserChannelProfile = ( async(req, res) => {
     const {username} = req.params
 
@@ -381,6 +380,54 @@ const getUserChannelProfile = ( async(req, res) => {
     .status(200)
     .json(new ApiResponse(200, channel[0], "Channel Profile fetched successfully"))
 })
+
+const getWatchHistory = asyncHandler( async(req, res) => {
+    const user = await User.aggregate([
+        {
+            $match: {id: new mongoose.Types.ObjectId(req.user._id)}
+        },
+        {
+            $lookup: {
+                from: "videos",
+                localFiled: "watchHistory",
+                foreignFiled: "-id",
+                as: "watchHistory",
+                pipeline: [
+                    {
+                        $lookup: {
+                            from: "users",
+                            localField: "owner",
+                            foreignField: "_id",
+                            as: "owner",
+                            pipeline: [
+                                {
+                                    $project: {
+                                        fullName: 1,
+                                        username: 1,
+                                        avatar: 1
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        $addFileds: {
+                            owner: {
+                                $first: "$owner"
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    ])
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200, user[0].watchHistory, "Watch History fetched successfully"))
+})
+
+
 export {
     registerUser,
     loginUser,
@@ -391,5 +438,6 @@ export {
     updateAccountDetails,
     updateUserAvatar,
     updateUserCoverImage,
-    getUserChannelProfile
+    getUserChannelProfile,
+    getWatchHistory
 }
