@@ -215,7 +215,7 @@ const refreshAccessToken = asyncHandler( async(req, res) => {
 })
 
 const changeCurrentPassword = asyncHandler( async(req, res) =>{
-    const {oldPassword, newpassword} = req.body
+    const {oldPassword, newPassword} = req.body
 
     const user = await User.findById(req.user?._id)
     const isPasswordCorrect = await user.isPasswordCorrect(oldPassword)
@@ -224,7 +224,7 @@ const changeCurrentPassword = asyncHandler( async(req, res) =>{
         throw new ApiError(400, "Old Password is incorrect")
     }
 
-    user.password = newpassword
+    user.password = newPassword
     await user.save({validateBeforeSave: false})
     return res.status(200).json(new ApiResponse(200, {}, "Password changed successfully"))
 })
@@ -259,7 +259,7 @@ const updateAccountDetails = asyncHandler( async(req, res) => {
 })
 
 const updateUserAvatar = asyncHandler( async(req, res) => {
-    const avatarLocalPath = req.files?.path
+    const avatarLocalPath = req.file?.path
 
     if(!avatarLocalPath){
         throw new ApiError(400, "Avatar file is missing")
@@ -287,7 +287,7 @@ const updateUserAvatar = asyncHandler( async(req, res) => {
 })
 
 const updateUserCoverImage = asyncHandler( async(req, res) => {
-    const coverImageLocalPath = req.files?.path
+    const coverImageLocalPath = req.file?.path
 
     if(!coverImageLocalPath){
         throw new ApiError(400, "Cover Image file is missing")
@@ -325,7 +325,7 @@ const getUserChannelProfile = asyncHandler( async(req, res) => {
         {
             $match: {
                 username: username?.toLowerCase()
-            },
+            }
         },
         {
             $lookup: {
@@ -333,7 +333,7 @@ const getUserChannelProfile = asyncHandler( async(req, res) => {
                 localField: "_id",
                 foreignField: "channel",
                 as: "subscribers"
-            },
+            }
         },
         {
             $lookup: {
@@ -366,8 +366,7 @@ const getUserChannelProfile = asyncHandler( async(req, res) => {
                 channelsSubscribedToCount: 1,
                 avatar: 1,
                 coverImage: 1,
-                email: 1,
-                
+                email: 1
             }
         }
     ])
